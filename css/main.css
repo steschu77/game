@@ -1,0 +1,83 @@
+body {
+  background-color: #eff7e7;
+  color: #274f07;
+  position: absolute;
+  width: 90%;
+  text-align: center;
+  filter: drop-shadow(0 0 6px rgb(82, 82, 82));
+}
+
+.h1 {
+  font-size: 400%;
+  font-style: oblique;
+  margin: 1px;
+}
+
+.h1-small {
+  font-size: 200%;
+  font-style: oblique;
+  margin: -1px;
+}
+
+p {
+  font-size: 120%;
+  margin: 1px;
+}
+
+.alert {
+  background-color: mistyrose;
+  color: red;
+  padding: 15px;
+  border: 1px red;
+  border-radius: 4px;
+}
+
+.rel {
+  position: relative;
+  margin: auto;
+}
+
+.abs {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+.tl, .tr, .bl, .br{
+  position: absolute;
+  content: url("../img/swirls-corner.svg");
+  pointer-events:none;
+}
+
+.tl{
+  top: -70px;
+  left: -70px;
+}
+
+.tr{
+  transform: rotate(90deg);
+  top: -70px;
+  right: -70px;
+}
+
+.bl{
+  transform: rotate(-90deg);
+  bottom: -70px;
+  left: -70px;
+}
+
+.br{
+  transform: rotate(180deg);
+  bottom: -70px;
+  right: -70px;
+}
+
+#canvas {
+  width: 800px;
+  height: 400px;
+}
+
+#debug {
+  padding-top: 70px;
+  text-align: left;
+}
