@@ -21,23 +21,28 @@ class WebGLRenderer
     const vsSource = `
       attribute vec4 aVertex;
       attribute vec4 aColor;
+      attribute vec2 aTexCoord;
 
       uniform mat4 uMatrix;
 
       varying lowp vec4 vColor;
+      varying lowp vec2 vTexCoord;
 
       void main() {
         gl_Position = uMatrix * aVertex;
         vColor = aColor;
+        vTexCoord = aTexCoord;
       }
     `;
 
     const fsSource = `
       precision mediump float;
       uniform vec4 uColor;
+      uniform sampler2D uSampler;
       varying lowp vec4 vColor;
+      varying lowp vec2 vTexCoord;
       void main(void) {
-        gl_FragColor = vColor;
+        gl_FragColor = texture2D(uSampler, vTexCoord);;
       }
     `;
 
@@ -48,10 +53,12 @@ class WebGLRenderer
       attribLocations: {
         vertex: gl.getAttribLocation(shaderProgram, 'aVertex'),
         color: gl.getAttribLocation(shaderProgram, 'aColor'),
+        texCoord: gl.getAttribLocation(shaderProgram, "aTexCoord"),
       },
       uniformLocations: {
         matrix: gl.getUniformLocation(shaderProgram, 'uMatrix'),
         color: gl.getUniformLocation(shaderProgram, 'uColor'),
+        uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
       },
     };
 
@@ -67,10 +74,17 @@ class WebGLRenderer
       numPoints: triPoints.length / 2
     };
 
+    const texCoords = [ 0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0 ];
+    this.texCoords = {
+      buffer: this.createBuffer(texCoords),
+    };
+
     this.projectionMatrix = this.setupProjection(gl.canvas);
     this.inverseProjection = this.invertProjection(this.projectionMatrix);
 
     this.cameraPosition = { u0: 0, u1: 0 };
+
+    this.tex = this.createTexture("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TtSIVETuIOGSoThbELxylikWwUNoKrTqYXPoFTRqSFBdHwbXg4Mdi1cHFWVcHV0EQ/ABxdHJSdJES/5cUWsR4cNyPd/ced+8AoV5mqtkxDqiaZSRjUTGTXRUDrwiiCwKm0S8xU4+nFtPwHF/38PH1LsKzvM/9OXqVnMkAn0g8x3TDIt4gntm0dM77xCFWlBTic+Ixgy5I/Mh12eU3zgWHBZ4ZMtLJeeIQsVhoY7mNWdFQiaeIw4qqUb6QcVnhvMVZLVdZ8578hcGctpLiOs1hxLCEOBIQIaOKEsqwEKFVI8VEkvajHv4hx58gl0yuEhg5FlCBCsnxg//B727N/OSEmxSMAp0vtv0xAgR2gUbNtr+PbbtxAvifgSut5a/UgdlP0mstLXwE9G0DF9ctTd4DLneAwSddMiRH8tMU8nng/Yy+KQsM3AI9a25vzX2cPgBp6mr5Bjg4BEYLlL3u8e7u9t7+PdPs7wdwJnKm75aG0wAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+YMBgMEMzWo+qkAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAA7UlEQVRIx9VWSw6FIAwUwglgJXfRw8NddKVneIuXEMJnbCvk5XVFGum00w5VLUxbbaid5733vlfvo2MYIcBxbd+DdxFjGEqmxbUUPZ0LmNz0MsJySAZAuoapx00aUwEwBOBdbNbuXaxJ77GkxbWDxgopWm047x1oigpQJFvXzsIgTZFgnB6EBprGxdDvpYQzMMOlS6VIEPS4tnp2pyg5Z+l3TwVRqI80zqogsaRZC3YARasNArkClqY32eCdjq0YhOZ+lii5N2BNv+Yqto7SHIrkNOLc87jUPzu8anrRsSnBW88SiuJulbEy/Af7AKTPa0Ye0JlgAAAAAElFTkSuQmCC");
   }
 
   // --------------------------------------------------------------------------
@@ -81,6 +95,34 @@ class WebGLRenderer
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(float32s), gl.STATIC_DRAW);
     return buffer;
+  }
+
+  // --------------------------------------------------------------------------
+  createTexture(url)
+  {
+    const gl = this.gl;
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+
+    // Create a 1x1 white dummy texture for immediate use. Will be replaced once
+    // the actual image has been downloaded.
+    const pix = new Uint8Array([0xff, 0xff, 0xff, 0xff]);
+    gl.texImage2D(
+      gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, pix);
+
+    const img = new Image();
+    img.src = url;
+
+    img.onload = () => {
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texImage2D(
+        gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    };
+
+    return texture;
   }
 
   // --------------------------------------------------------------------------
@@ -220,14 +262,21 @@ class WebGLRenderer
       defaultProgram.attribLocations.vertex,
       2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(
-        defaultProgram.attribLocations.vertex);
+      defaultProgram.attribLocations.vertex);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, chunks.color);
     gl.vertexAttribPointer(
       defaultProgram.attribLocations.color,
       4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(
-        defaultProgram.attribLocations.color);
+      defaultProgram.attribLocations.color);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, chunks.txtre);
+    gl.vertexAttribPointer(
+      defaultProgram.attribLocations.texCoord,
+      2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(
+      defaultProgram.attribLocations.texCoord);
 
     gl.drawArrays(gl.TRIANGLES, 0, chunks.numPoints);
   }

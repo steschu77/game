@@ -1,13 +1,4 @@
 // ----------------------------------------------------------------------------
-class WorldBlock {
-  constructor(x, y, data) {
-    this.x = x;
-    this.y = y;
-    this.data = data;
-  }
-}
-
-// ----------------------------------------------------------------------------
 class WorldMap {
   constructor(wgl) {
 
@@ -47,6 +38,7 @@ class WorldMap {
 
     let points = [];
     let colors = [];
+    let txtres = [];
     for (let y = -12; y < 12; y+=1) {
       for (let x = -24; x < 24; x+=1) {
         const px = x - ox;
@@ -72,6 +64,8 @@ class WorldMap {
 
         points.push(px - 0.4);
         points.push(py - 0.4);
+        txtres.push(0);
+        txtres.push(0);
         colors.push(cr);
         colors.push(cg);
         colors.push(cb);
@@ -79,6 +73,8 @@ class WorldMap {
 
         points.push(px - 0.4);
         points.push(py + 0.4);
+        txtres.push(0);
+        txtres.push(1);
         colors.push(cr);
         colors.push(cg);
         colors.push(cb);
@@ -86,6 +82,8 @@ class WorldMap {
 
         points.push(px + 0.4);
         points.push(py - 0.4);
+        txtres.push(1);
+        txtres.push(0);
         colors.push(cr);
         colors.push(cg);
         colors.push(cb);
@@ -93,6 +91,8 @@ class WorldMap {
 
         points.push(px + 0.4);
         points.push(py - 0.4);
+        txtres.push(1);
+        txtres.push(0);
         colors.push(cr);
         colors.push(cg);
         colors.push(cb);
@@ -100,6 +100,8 @@ class WorldMap {
 
         points.push(px - 0.4);
         points.push(py + 0.4);
+        txtres.push(0);
+        txtres.push(1);
         colors.push(cr);
         colors.push(cg);
         colors.push(cb);
@@ -107,6 +109,8 @@ class WorldMap {
 
         points.push(px + 0.4);
         points.push(py + 0.4);
+        txtres.push(1);
+        txtres.push(1);
         colors.push(cr);
         colors.push(cg);
         colors.push(cb);
@@ -117,6 +121,7 @@ class WorldMap {
     return {
       shape: this.wgl.createBuffer(points),
       color: this.wgl.createBuffer(colors),
+      txtre: this.wgl.createBuffer(txtres),
       numPoints: points.length / 2
     };
   }
