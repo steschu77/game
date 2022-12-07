@@ -20,26 +20,21 @@ class WebGLRenderer
 
     const vsSource = `
       attribute vec4 aVertex;
-      attribute vec4 aColor;
       attribute vec2 aTexCoord;
 
       uniform mat4 uMatrix;
 
-      varying lowp vec4 vColor;
       varying lowp vec2 vTexCoord;
 
       void main() {
         gl_Position = uMatrix * aVertex;
-        vColor = aColor;
         vTexCoord = aTexCoord;
       }
     `;
 
     const fsSource = `
       precision mediump float;
-      uniform vec4 uColor;
       uniform sampler2D uSampler;
-      varying lowp vec4 vColor;
       varying lowp vec2 vTexCoord;
       void main(void) {
         gl_FragColor = texture2D(uSampler, vTexCoord);;
@@ -52,12 +47,10 @@ class WebGLRenderer
       program: shaderProgram,
       attribLocations: {
         vertex: gl.getAttribLocation(shaderProgram, 'aVertex'),
-        color: gl.getAttribLocation(shaderProgram, 'aColor'),
         texCoord: gl.getAttribLocation(shaderProgram, "aTexCoord"),
       },
       uniformLocations: {
         matrix: gl.getUniformLocation(shaderProgram, 'uMatrix'),
-        color: gl.getUniformLocation(shaderProgram, 'uColor'),
         uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
       },
     };
@@ -252,10 +245,6 @@ class WebGLRenderer
         false,
         this.projectionMatrix);
 
-    gl.uniform4fv(
-      defaultProgram.uniformLocations.color,
-      [1.0, 1.0, 1.0, 1.0]);
-
     let chunks = world.getChunks(cameraPos)
     gl.bindBuffer(gl.ARRAY_BUFFER, chunks.shape);
     gl.vertexAttribPointer(
@@ -263,13 +252,6 @@ class WebGLRenderer
       2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(
       defaultProgram.attribLocations.vertex);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, chunks.color);
-    gl.vertexAttribPointer(
-      defaultProgram.attribLocations.color,
-      4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(
-      defaultProgram.attribLocations.color);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, chunks.txtre);
     gl.vertexAttribPointer(

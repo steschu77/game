@@ -37,90 +37,46 @@ class WorldMap {
     const oy = cameraPos.u1 - cy;
 
     let points = [];
-    let colors = [];
     let txtres = [];
     for (let y = -12; y < 12; y+=1) {
       for (let x = -24; x < 24; x+=1) {
         const px = x - ox;
         const py = y - oy;
-        let cr = ((cx+x) & 31) / 32.0;
-        let cg = ((cy+y) & 31) / 32.0;
-        let cb = ((cx+x) & 31) / 32.0;
-
-        const v = this.getAt(cx+x, cy+y);
-        if (v == 0) {
-          cr = 0.0;
-          cg = 0.1;
-          cb = 0.5;
-        } else if (v == 25) {
-          cr = 0.6;
-          cg = 0.5;
-          cb = 0.0;
-        } else {
-          cr = 0.2;
-          cg = 0.8;
-          cb = 0.1;
-        }
 
         points.push(px - 0.4);
         points.push(py - 0.4);
         txtres.push(0);
         txtres.push(0);
-        colors.push(cr);
-        colors.push(cg);
-        colors.push(cb);
-        colors.push(1.0);
 
         points.push(px - 0.4);
         points.push(py + 0.4);
         txtres.push(0);
         txtres.push(1);
-        colors.push(cr);
-        colors.push(cg);
-        colors.push(cb);
-        colors.push(1.0);
 
         points.push(px + 0.4);
         points.push(py - 0.4);
         txtres.push(1);
         txtres.push(0);
-        colors.push(cr);
-        colors.push(cg);
-        colors.push(cb);
-        colors.push(1.0);
 
         points.push(px + 0.4);
         points.push(py - 0.4);
         txtres.push(1);
         txtres.push(0);
-        colors.push(cr);
-        colors.push(cg);
-        colors.push(cb);
-        colors.push(1.0);
 
         points.push(px - 0.4);
         points.push(py + 0.4);
         txtres.push(0);
         txtres.push(1);
-        colors.push(cr);
-        colors.push(cg);
-        colors.push(cb);
-        colors.push(1.0);
 
         points.push(px + 0.4);
         points.push(py + 0.4);
         txtres.push(1);
         txtres.push(1);
-        colors.push(cr);
-        colors.push(cg);
-        colors.push(cb);
-        colors.push(1.0);
       }
     }
 
     return {
       shape: this.wgl.createBuffer(points),
-      color: this.wgl.createBuffer(colors),
       txtre: this.wgl.createBuffer(txtres),
       numPoints: points.length / 2
     };
