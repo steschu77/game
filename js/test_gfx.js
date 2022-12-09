@@ -20,8 +20,9 @@ function main()
     mousePos = { u0: pos.x, u1: pos.y };
     mouseNode.nodeValue = `\u{1F5B0}(${mousePos.u0}, ${mousePos.u1}, ${buttons}) 1`;
     const cursor = wgl.screenToWorldCoords(mousePos);
-    const x = Math.floor(cursor.u0 + 0.5);
-    const y = Math.floor(cursor.u1 + 0.5);
+    const x = Math.floor(cursor.u0 + 1.0);
+    const y = Math.floor(cursor.u1 + 1.0);
+    world.putAt(x, y, 0);
   }
 
   let dragStartPos = { u0: 0, u1: 0 };
