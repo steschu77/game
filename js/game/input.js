@@ -71,8 +71,9 @@ function initMouse(onMove, onClick, onDragStart, onDragEnd, onDrag)
     if (dragging) {
       onDragEnd(pos);
       dragging = false;
+    } else {
+      onClick(pos, event.buttons);
     }
-    onClick(pos, event.buttons);
   }
 
   canvas.addEventListener('mousemove', mouseMoveHandler);
