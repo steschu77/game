@@ -37,7 +37,10 @@ class WebGLRenderer
       uniform sampler2D uSampler;
       varying lowp vec2 vTexCoord;
       void main(void) {
-        gl_FragColor = texture2D(uSampler, vTexCoord);;
+        vec4 texColor = texture2D(uSampler, vTexCoord);
+        if (texColor.a < 0.1)
+          discard;
+        gl_FragColor = texColor;
       }
     `;
 
@@ -55,7 +58,7 @@ class WebGLRenderer
       },
     };
 
-    const rectPoints = [ -0.5,  0.5,   0.5,  0.5,   0.5, -0.5,  -0.5, -0.5 ];
+    const rectPoints = [ -1.0,-1.0, -1.0, 1.0,  1.0,-1.0,  1.0, -1.0, -1.0, 1.0,  1.0, 1.0 ];
     this.rectShape = {
       buffer: this.createBuffer(rectPoints),
       numPoints: rectPoints.length / 2
@@ -67,7 +70,9 @@ class WebGLRenderer
       numPoints: triPoints.length / 2
     };
 
-    const texCoords = [ 0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0 ];
+    const du = 32.0 / 256.0;
+    const dv = 32.0 / 256.0;
+    const texCoords = [ 0.0, 0.0,  0.0, dv,  du, 0.0,  du, 0.0,  0.0, dv,  du, dv ];
     this.texCoords = {
       buffer: this.createBuffer(texCoords),
     };
@@ -77,7 +82,8 @@ class WebGLRenderer
 
     this.cameraPosition = { u0: 0, u1: 0 };
 
-    this.tex = this.createTexture("img/free.png");
+    this.texTile = this.createTexture("img/free.png");
+    this.texChar = this.createTexture("img/girl.png");
   }
 
   // --------------------------------------------------------------------------
@@ -159,7 +165,7 @@ class WebGLRenderer
   // --------------------------------------------------------------------------
   setupProjection(canvas)
   {
-    const zoom = 10.0;
+    const zoom = 8.0;
     const aspect = canvas.clientWidth / canvas.clientHeight;
     const left = -zoom * aspect;
     const right = zoom * aspect;
@@ -231,7 +237,7 @@ class WebGLRenderer
     const buffers = this.rectShape;
     const cameraPos = this.cameraPosition;
 
-    gl.clearColor(0.1, 0.0, 0.0, 1.0);
+    gl.clearColor(0.1, 0.1, 0.1, 1.0);
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
@@ -241,6 +247,8 @@ class WebGLRenderer
     const defaultProgram = this.defaultProgram;
     gl.useProgram(defaultProgram.program);
 
+    // draw tiles
+    gl.bindTexture(gl.TEXTURE_2D, this.texTile);
     gl.uniformMatrix4fv(
         defaultProgram.uniformLocations.matrix,
         false,
@@ -262,5 +270,39 @@ class WebGLRenderer
       defaultProgram.attribLocations.texCoord);
 
     gl.drawArrays(gl.TRIANGLES, 0, chunks.numPoints);
+
+    // draw character
+    gl.bindTexture(gl.TEXTURE_2D, this.texChar);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.rectShape.buffer);
+    gl.vertexAttribPointer(
+      defaultProgram.attribLocations.vertex,
+      2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(
+      defaultProgram.attribLocations.vertex);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.texCoords.buffer);
+    gl.vertexAttribPointer(
+      defaultProgram.attribLocations.texCoord,
+      2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(
+      defaultProgram.attribLocations.texCoord);
+
+    gl.uniformMatrix4fv(
+        defaultProgram.uniformLocations.matrix,
+        false,
+        this.projectionMatrix);
+
+    const pos = { u0: 6.5, u1: 0.5 };
+    const bodyMatrix = glMatrix.mat4.create();
+    glMatrix.mat4.fromTranslation(bodyMatrix, [pos.u0, pos.u1, 0.0]);
+    glMatrix.mat4.mul(bodyMatrix, this.projectionMatrix, bodyMatrix);
+
+    gl.uniformMatrix4fv(
+        defaultProgram.uniformLocations.matrix,
+        false,
+        bodyMatrix);
+    gl.drawArrays(gl.TRIANGLES, 0, this.rectShape.numPoints);
+
   }
+
 }
