@@ -77,7 +77,7 @@ class WebGLRenderer
 
     this.cameraPosition = { u0: 0, u1: 0 };
 
-    this.tex = this.createTexture("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TtSIVETuIOGSoThbELxylikWwUNoKrTqYXPoFTRqSFBdHwbXg4Mdi1cHFWVcHV0EQ/ABxdHJSdJES/5cUWsR4cNyPd/ced+8AoV5mqtkxDqiaZSRjUTGTXRUDrwiiCwKm0S8xU4+nFtPwHF/38PH1LsKzvM/9OXqVnMkAn0g8x3TDIt4gntm0dM77xCFWlBTic+Ixgy5I/Mh12eU3zgWHBZ4ZMtLJeeIQsVhoY7mNWdFQiaeIw4qqUb6QcVnhvMVZLVdZ8578hcGctpLiOs1hxLCEOBIQIaOKEsqwEKFVI8VEkvajHv4hx58gl0yuEhg5FlCBCsnxg//B727N/OSEmxSMAp0vtv0xAgR2gUbNtr+PbbtxAvifgSut5a/UgdlP0mstLXwE9G0DF9ctTd4DLneAwSddMiRH8tMU8nng/Yy+KQsM3AI9a25vzX2cPgBp6mr5Bjg4BEYLlL3u8e7u9t7+PdPs7wdwJnKm75aG0wAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+YMBgMEMzWo+qkAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAA7UlEQVRIx9VWSw6FIAwUwglgJXfRw8NddKVneIuXEMJnbCvk5XVFGum00w5VLUxbbaid5733vlfvo2MYIcBxbd+DdxFjGEqmxbUUPZ0LmNz0MsJySAZAuoapx00aUwEwBOBdbNbuXaxJ77GkxbWDxgopWm047x1oigpQJFvXzsIgTZFgnB6EBprGxdDvpYQzMMOlS6VIEPS4tnp2pyg5Z+l3TwVRqI80zqogsaRZC3YARasNArkClqY32eCdjq0YhOZ+lii5N2BNv+Yqto7SHIrkNOLc87jUPzu8anrRsSnBW88SiuJulbEy/Af7AKTPa0Ye0JlgAAAAAElFTkSuQmCC");
+    this.tex = this.createTexture("img/tiles.png");
   }
 
   // --------------------------------------------------------------------------
@@ -99,6 +99,7 @@ class WebGLRenderer
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
     // Create a 1x1 white dummy texture for immediate use. Will be replaced once
     // the actual image has been downloaded.
