@@ -77,7 +77,7 @@ class WebGLRenderer
 
     this.cameraPosition = { u0: 0, u1: 0 };
 
-    this.tex = this.createTexture("img/tiles.png");
+    this.tex = this.createTexture("img/free.png");
   }
 
   // --------------------------------------------------------------------------

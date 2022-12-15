@@ -38,9 +38,9 @@ class WorldMap {
       for (let x = 0; x < 32; x++) {
 
         const x0 = this.map2d[32 * y + x];
-        const x1 = (x < 32) ? this.map2d[32 * y + (x + 1)] : x0;
-        const y0 = (y > 0)  ? this.map2d[32 * (y + 1) + x] : x0;
-        const y1 = (y < 32) ? this.map2d[32 * (y + 1) + (x + 1)] : x0;
+        const x1 = (x < 32) ? this.map2d[32 * y + (x + 1)] : 0;
+        const y0 = (y < 32)  ? this.map2d[32 * (y + 1) + x] : 0;
+        const y1 = (y < 32 && x < 32) ? this.map2d[32 * (y + 1) + (x + 1)] : 0;
 
         const z = 1*x0 + 2*x1 + 4*y0 + 8*y1;
 
@@ -51,26 +51,6 @@ class WorldMap {
 
   getChunks(cameraPos) {
 
-    const mat = [
-      { u: 2, v: 6 }, // 0
-      { u: 2, v: 2 },
-      { u: 0, v: 2 },
-      { u: 1, v: 2 },
-      { u: 2, v: 0 }, // 4
-      { u: 2, v: 1 },
-      { u: 0, v: 6 },
-      { u: 6, v: 0 },
-      { u: 0, v: 0 }, // 8
-      { u: 7, v: 1 },
-      { u: 0, v: 1 },
-      { u: 7, v: 0 },
-      { u: 1, v: 0 }, // 12
-      { u: 6, v: 1 },
-      { u: 7, v: 1 },
-      { u: 1, v: 1 },
-      { u: 1, v: 2 }, // 16
-      { u: 1, v: 1 },
-    ];
     const du = 16.0/256.0;
     const dv = 16.0/256.0;
 
@@ -87,8 +67,8 @@ class WorldMap {
         const py = y - oy;
 
         const id = this.getFilterdAt(cx+x, cy+y);
-        const u = mat[id].u * 16.0/256.0;
-        const v = mat[id].v * 16.0/256.0;
+        const u = id * 16.0/256.0;
+        const v = 0;
 
         points.push(px - 0.5);
         points.push(py - 0.5);
