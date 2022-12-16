@@ -5,6 +5,7 @@ function main()
   document.querySelector("#debug").appendChild(mouseNode);
 
   let mousePos = { u0: 0, u1: 0 };
+  let mouseBlock = { u0: 0, u1: 0 };
   let campos = { u0: mousePos.u0, u1: mousePos.u1 };
 
   function onMouseMove(pos, buttons) {
@@ -13,6 +14,7 @@ function main()
     const x = Math.floor(cursor.u0 + 0.5);
     const y = Math.floor(cursor.u1 + 0.5);
     const z = world.getAt(x, y);
+    mouseBlock = { u0: x, u1: y };
     mouseNode.nodeValue = `\u{1F5B0}(${mousePos.u0}, ${mousePos.u1}, ${buttons}) ${z}`;
   }
 
@@ -59,7 +61,8 @@ function main()
 
   function render(t_msec)
   {
-    wgl.drawScene(world);
+    const dir = mouseBlock.u0 < 6.5;
+    wgl.drawScene(world, t_msec, dir);
     requestAnimationFrame(render);
   }
 

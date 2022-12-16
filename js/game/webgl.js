@@ -72,7 +72,25 @@ class WebGLRenderer
 
     const du = 32.0 / 256.0;
     const dv = 32.0 / 256.0;
-    const texCoords = [ 0.0, 0.0,  0.0, dv,  du, 0.0,  du, 0.0,  0.0, dv,  du, dv ];
+
+    let texCoords = [];
+    for (let j = 0; j < 2; j++) {
+      for (let i = 0; i < 8; i++) {
+        texCoords.push(    i*du);
+        texCoords.push(    j*dv);
+        texCoords.push(    i*du);
+        texCoords.push((j+1)*dv);
+        texCoords.push((i+1)*du);
+        texCoords.push(    j*dv);
+
+        texCoords.push((i+1)*du);
+        texCoords.push(    j*dv);
+        texCoords.push(    i*du);
+        texCoords.push((j+1)*dv);
+        texCoords.push((i+1)*du);
+        texCoords.push((j+1)*dv);
+      }
+    }
     this.texCoords = {
       buffer: this.createBuffer(texCoords),
     };
@@ -231,7 +249,7 @@ class WebGLRenderer
   }
 
   // --------------------------------------------------------------------------
-  drawScene(world)
+  drawScene(world, t_msec, dir)
   {
     const gl = this.gl;
     const buffers = this.rectShape;
@@ -272,6 +290,7 @@ class WebGLRenderer
     gl.drawArrays(gl.TRIANGLES, 0, chunks.numPoints);
 
     // draw character
+    const idx = ((t_msec / 128) & 7) + 8*dir;
     gl.bindTexture(gl.TEXTURE_2D, this.texChar);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.rectShape.buffer);
     gl.vertexAttribPointer(
@@ -283,7 +302,7 @@ class WebGLRenderer
     gl.bindBuffer(gl.ARRAY_BUFFER, this.texCoords.buffer);
     gl.vertexAttribPointer(
       defaultProgram.attribLocations.texCoord,
-      2, gl.FLOAT, false, 0, 0);
+      2, gl.FLOAT, false, 0, 48*idx);
     gl.enableVertexAttribArray(
       defaultProgram.attribLocations.texCoord);
 
