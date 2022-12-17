@@ -317,7 +317,10 @@ class WebGLRenderer
         false,
         this.projectionMatrix);
 
-    const pos = player.pos;
+    const pos = {
+      u0: player.pos.u0 - cameraPos.u0,
+      u1: player.pos.u1 - cameraPos.u1
+    };
     const bodyMatrix = glMatrix.mat4.create();
     glMatrix.mat4.fromTranslation(bodyMatrix, [pos.u0, pos.u1, 0.0]);
     glMatrix.mat4.mul(bodyMatrix, this.projectionMatrix, bodyMatrix);
