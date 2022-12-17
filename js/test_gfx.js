@@ -8,6 +8,12 @@ function main()
   let mouseBlock = { u0: 0, u1: 0 };
   let campos = { u0: mousePos.u0, u1: mousePos.u1 };
 
+  let player = {
+    pos: { u0: 0, u1: 0 },
+    frame: 0,
+    dir: false
+  };
+
   function onMouseMove(pos, buttons) {
     mousePos = { u0: pos.x, u1: pos.y };
     const cursor = wgl.screenToWorldCoords(mousePos);
@@ -55,14 +61,18 @@ function main()
 
   let mouse = initMouse(onMouseMove, onMouseClick, onMouseDragStart, onMouseDragEnd, onMouseDrag);
 
-  let prev_t_sec = 0;
-
   const world = new WorldMap(wgl);
 
   function render(t_msec)
   {
-    const dir = mouseBlock.u0 < 6.5;
-    wgl.drawScene(world, t_msec, dir);
+    player.dir = mouseBlock.u0 < 6.5;
+    if (player.dir) {
+      player.pos.u0 -= 0.1;
+    } else {
+      player.pos.u0 += 0.1;
+    }
+
+    wgl.drawScene(world, t_msec, player, wgl.screenToWorldCoords(mousePos));
     requestAnimationFrame(render);
   }
 

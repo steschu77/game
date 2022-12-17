@@ -70,11 +70,17 @@ class WebGLRenderer
       numPoints: triPoints.length / 2
     };
 
+    const cursorPoints = [ 0.0,0.0,  0.0,1.0,  1.0,0.0,  1.0,0.0, 0.0,1.0,  1.0, 1.0 ];
+    this.cursorShape = {
+      buffer: this.createBuffer(cursorPoints),
+      numPoints: cursorPoints.length / 2
+    };
+
     const du = 32.0 / 256.0;
     const dv = 32.0 / 256.0;
 
     let texCoords = [];
-    for (let j = 0; j < 2; j++) {
+    for (let j = 0; j < 3; j++) {
       for (let i = 0; i < 8; i++) {
         texCoords.push(    i*du);
         texCoords.push(    j*dv);
@@ -249,7 +255,7 @@ class WebGLRenderer
   }
 
   // --------------------------------------------------------------------------
-  drawScene(world, t_msec, dir)
+  drawScene(world, t_msec, player, cursor)
   {
     const gl = this.gl;
     const buffers = this.rectShape;
@@ -290,7 +296,7 @@ class WebGLRenderer
     gl.drawArrays(gl.TRIANGLES, 0, chunks.numPoints);
 
     // draw character
-    const idx = ((t_msec / 128) & 7) + 8*dir;
+    const idx = ((t_msec / 128) & 7) + 8*player.dir;
     gl.bindTexture(gl.TEXTURE_2D, this.texChar);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.rectShape.buffer);
     gl.vertexAttribPointer(
@@ -311,7 +317,7 @@ class WebGLRenderer
         false,
         this.projectionMatrix);
 
-    const pos = { u0: 6.5, u1: 0.5 };
+    const pos = player.pos;
     const bodyMatrix = glMatrix.mat4.create();
     glMatrix.mat4.fromTranslation(bodyMatrix, [pos.u0, pos.u1, 0.0]);
     glMatrix.mat4.mul(bodyMatrix, this.projectionMatrix, bodyMatrix);
@@ -322,6 +328,41 @@ class WebGLRenderer
         bodyMatrix);
     gl.drawArrays(gl.TRIANGLES, 0, this.rectShape.numPoints);
 
+    // draw cursor
+    {
+      const cx = Math.floor(cursor.u0) - cameraPos.u0;
+      const cy = Math.floor(cursor.u1) - cameraPos.u1;
+
+      gl.bindTexture(gl.TEXTURE_2D, this.texChar);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.cursorShape.buffer);
+      gl.vertexAttribPointer(
+        defaultProgram.attribLocations.vertex,
+        2, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(
+        defaultProgram.attribLocations.vertex);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.texCoords.buffer);
+      gl.vertexAttribPointer(
+        defaultProgram.attribLocations.texCoord,
+        2, gl.FLOAT, false, 0, 16*48);
+      gl.enableVertexAttribArray(
+        defaultProgram.attribLocations.texCoord);
+
+      gl.uniformMatrix4fv(
+          defaultProgram.uniformLocations.matrix,
+          false,
+          this.projectionMatrix);
+
+      const bodyMatrix = glMatrix.mat4.create();
+      glMatrix.mat4.fromTranslation(bodyMatrix, [cx, cy, 0.0]);
+      glMatrix.mat4.mul(bodyMatrix, this.projectionMatrix, bodyMatrix);
+
+      gl.uniformMatrix4fv(
+          defaultProgram.uniformLocations.matrix,
+          false,
+          bodyMatrix);
+      gl.drawArrays(gl.TRIANGLES, 0, this.cursorShape.numPoints);
+    }
   }
 
 }
