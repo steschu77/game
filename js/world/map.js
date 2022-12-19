@@ -5,6 +5,7 @@ class WorldMap {
     this.wgl = wgl;
     this.map2d = new Uint8Array(32 * 32);
     this.filter2d = new Uint8Array(32 * 32);
+    this.item2d = new Uint8Array(32 * 32);
 
     let img = document.getElementById("map");
 
@@ -31,6 +32,17 @@ class WorldMap {
     img.remove();
 
     this.filterMap();
+
+    for (let y = 0; y < 32; y++) {
+      for (let x = 0; x < 32; x++) {
+        this.item2d[32 * y + x] = 0;
+      }
+    }
+
+    this.item2d[32 * 5 + 8] = 1;
+    this.item2d[32 * 10 + 12] = 1;
+    this.item2d[32 * 7 + 7] = 1;
+    this.item2d[32 * 6 + 9] = 1;
   }
 
   filterMap() {
@@ -107,6 +119,77 @@ class WorldMap {
       txtre: this.wgl.createBuffer(txtres),
       numPoints: points.length / 2
     };
+  }
+
+  getItems(cameraPos) {
+    const du = 32.0/256.0;
+    const dv = 32.0/256.0;
+
+    const cx = Math.floor(cameraPos.u0);
+    const cy = Math.floor(cameraPos.u1);
+    const ox = cameraPos.u0 - cx;
+    const oy = cameraPos.u1 - cy;
+
+    let points = [];
+    let txtres = [];
+    for (let y = -12; y < 12; y+=1) {
+      for (let x = -24; x < 24; x+=1) {
+        const px = x - ox;
+        const py = y - oy;
+
+        const id = this.getItemAt(cx+x, cy+y);
+
+        if (id === 0) {
+          continue;
+        }
+
+        const u =  0.0/256.0;
+        const v = 32.0/256.0;
+
+        points.push(px - 1);
+        points.push(py - 1);
+        txtres.push(u);
+        txtres.push(v);
+
+        points.push(px - 1);
+        points.push(py + 1);
+        txtres.push(u);
+        txtres.push(v+dv);
+
+        points.push(px + 1);
+        points.push(py - 1);
+        txtres.push(u+du);
+        txtres.push(v);
+
+        points.push(px + 1);
+        points.push(py - 1);
+        txtres.push(u+du);
+        txtres.push(v);
+
+        points.push(px - 1);
+        points.push(py + 1);
+        txtres.push(u);
+        txtres.push(v+dv);
+
+        points.push(px + 1);
+        points.push(py + 1);
+        txtres.push(u+du);
+        txtres.push(v+dv);
+      }
+    }
+
+    return {
+      shape: this.wgl.createBuffer(points),
+      txtre: this.wgl.createBuffer(txtres),
+      numPoints: points.length / 2
+    };
+  }
+
+  getItemAt(cx, cy) {
+    if (cx >= 0 && cx < 32 && cy >= 0 && cy < 32) {
+      return this.item2d[32 * cy + cx];
+    }
+    return 0;
   }
 
   getFilterdAt(cx, cy) {

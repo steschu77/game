@@ -295,6 +295,30 @@ class WebGLRenderer
 
     gl.drawArrays(gl.TRIANGLES, 0, chunks.numPoints);
 
+    // draw items
+    gl.bindTexture(gl.TEXTURE_2D, this.texTile);
+    gl.uniformMatrix4fv(
+        defaultProgram.uniformLocations.matrix,
+        false,
+        this.projectionMatrix);
+
+    let items = world.getItems(cameraPos)
+    gl.bindBuffer(gl.ARRAY_BUFFER, items.shape);
+    gl.vertexAttribPointer(
+      defaultProgram.attribLocations.vertex,
+      2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(
+      defaultProgram.attribLocations.vertex);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, items.txtre);
+    gl.vertexAttribPointer(
+      defaultProgram.attribLocations.texCoord,
+      2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(
+      defaultProgram.attribLocations.texCoord);
+
+    gl.drawArrays(gl.TRIANGLES, 0, items.numPoints);
+
     // draw character
     const idx = ((t_msec / 128) & 7) + 8*player.dir;
     gl.bindTexture(gl.TEXTURE_2D, this.texChar);
